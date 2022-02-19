@@ -1,0 +1,17 @@
+name: Practice
+version: 1.0
+author: jejeoh
+main: fr.jejeoh.practice.Base
+commands:
+  kiteditor :
+    description: commands pour editer les kits
+    permission: practice.kit.use
+  test :
+    description: commands pour debug
+    permission: practice.debug.use
+  setarene :
+    description: commands pour créer une arene
+    permission: practice.arene.use
+  getarene :
+    description: commands pour voir les status
+    permission: practice.arene.use

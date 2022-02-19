@@ -1,0 +1,12 @@
+database:
+  niveau:
+    host: localhost
+    user: root
+    password: 
+    dbname: erizia
+kitnumber: 0
+spawn:
+  world: "world"
+  x: 0
+  y: 0
+  z: 0
