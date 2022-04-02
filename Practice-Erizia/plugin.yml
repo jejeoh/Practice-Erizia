@@ -15,3 +15,34 @@ commands:
   getarene :
     description: commands pour voir les status
     permission: practice.arene.use
+  sword :
+    description: commands pour give les epee
+    permission: practice.mod.use
+  ping:
+    description: donne le ping de la personne
+  update:
+    description: donne le ping de la personne
+  elo:
+    description: donne le ping de la personne
+  debug:
+    description: donne le ping de la personne
+  stat:
+    description: donne le ping de la personne
+  statdef:
+    description: donne le ping de la personne
+  duel:
+    description: donne le ping de la personne
+  setsumo :
+    description: commands pour créer une arene
+    permission: practice.arene.use
+  setparcour :
+    description: commands pour créer une arene
+    permission: practice.arene.use
+  groupe :
+    description: commands pour tout les groupes
+  g :
+    description: commands pour tout les groupes
+  setffa :
+    description: commands pour tout les groupes
+    permission: practice.arene.use
+    

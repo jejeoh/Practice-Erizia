@@ -1,4 +1,4 @@
-package fr.jejeoh.practice;
+package fr.jejeoh.practice.API;
 
 import java.util.HashMap;
 
@@ -15,6 +15,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import fr.jejeoh.practice.Base;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.ChatMessage;
 import net.minecraft.server.v1_8_R3.ContainerAnvil;

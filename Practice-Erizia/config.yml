@@ -10,3 +10,8 @@ spawn:
   x: 0
   y: 0
   z: 0
+editkit:
+  world: "world"
+  x: 0
+  y: 0
+  z: 0

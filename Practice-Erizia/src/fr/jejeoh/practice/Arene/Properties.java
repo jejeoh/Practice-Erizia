@@ -1,7 +1,9 @@
 package fr.jejeoh.practice.Arene;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -9,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -18,70 +19,62 @@ import org.bukkit.inventory.meta.ItemMeta;
 import fr.jejeoh.practice.Base;
 import fr.jejeoh.practice.NumberTimer;
 
-public class AreneManager {
-
-	public Properties pro;
-
-private Base main;
-
-public AreneManager (Base main) {
-	this.main = main;
+public class Properties {
 	
-	pro = new Properties(main);
+	private Base main;
 	
-	int number = main.aren.getInt("arene.number");
-	int nb = 0;
-	float ft1 = 0;
-	float ft2 = 0;
-	nb = 0;
-	while(nb != number) {
-		nb++;
-		if(main.aren.getBoolean("arene.all." + nb +".act")) {
-			ft1 =  main.aren.getInt("arene.all." + nb +".player1.yaw");
-			ft2 = main.aren.getInt("arene.all." + nb +".player1.pitch");
-			Location player1 = new Location(Bukkit.getWorld(main.aren.getString("arene.all." + nb +".world")), main.aren.getInt("arene.all." + nb +".player1.x"), main.aren.getInt("arene.all." + nb +".player1.y"), main.aren.getInt("arene.all." + nb +".player1.z"), ft1, ft2);
-			ft1 =  main.aren.getInt("arene.all." + nb +".player2.yaw");
-			ft2 = main.aren.getInt("arene.all." + nb +".player2.pitch");
-			Location player2 = new Location(Bukkit.getWorld(main.aren.getString("arene.all." + nb +".world")), main.aren.getInt("arene.all." + nb +".player2.x"), main.aren.getInt("arene.all." + nb +".player2.y"), main.aren.getInt("arene.all." + nb +".player2.z"), ft1, ft2);
-			Arene arene = new Arene(main.aren.getString("arene.all." + nb +".name"), player1, player2);
-			main.arensansjeu.add(arene);
+	public Map<Player, String> game = new HashMap<>();
+	
+	
+	
+	
+	public Properties(Base main) {
+		this.main = main;
+		
+		int nb = 0;
+		while(nb != main.aren.getInt("sumo.number")) {
+			nb++;
+			if(main.aren.getBoolean("sumo.all." + nb +".act")) {
+				Sumo arene = new Sumo("" + nb);
+				main.sumosansjeu.add(arene);
+			}
 		}
+		nb = 0;
+		while(nb != main.aren.getInt("parcour.number")) {
+			nb++;
+			if(main.aren.getBoolean("parcour.all." + nb +".act")) {
+				Parcour arene = new Parcour("" + nb);
+				main.parcoursansjeu.add(arene);
+			}
+		}
+		
 	}
-	nb = 0;
 	
-	FileConfiguration kit  = YamlConfiguration.loadConfiguration(main.getFile("kit"));
-
-	while(nb != kit.getInt("kitnumber")) {
-		nb++;
-		if(kit.getBoolean("kit." + nb + ".act") == true) {
-			List<Player> pl = new ArrayList<>();
-			main.kit.put("" + nb, pl);
-			List<Player> plu = new ArrayList<>();
-			main.kitingame.put("" + nb, plu);
-		}
-		if(kit.getBoolean("kit." + nb + ".ranked") == true) {
-			List<Player> pl = new ArrayList<>();
-			main.rankit.put("" + nb, pl);
-			List<Player> plu = new ArrayList<>();
-			main.rankitingame.put("" + nb, plu);
-		}
-	}
-}
-
-	public class Arene{
+	
+	
+	public class Sumo{
 		
 		private String name = null;
 		private Location player1 = null;
 		private Location player2 = null;
+		private int y = 0;
+		private String id = null;
 		
 
-		
 
+		public Sumo(String id) {
+			float ft1 = 0;
+			float ft2 = 0;
+					name = main.aren.getString("sumo.all." + id +".name");
+					ft1 =  main.aren.getInt("sumo.all." + id +".player1.yaw");
+					ft2 = main.aren.getInt("sumo.all." + id +".player1.pitch");
+					player1 = new Location(Bukkit.getWorld(main.aren.getString("sumo.all." + id +".world")), main.aren.getInt("sumo.all." + id +".player1.x"), main.aren.getInt("sumo.all." + id +".player1.y"), main.aren.getInt("sumo.all." + id +".player1.z"), ft1, ft2);
+					ft1 =  main.aren.getInt("sumo.all." + id +".player2.yaw");
+					ft2 = main.aren.getInt("sumo.all." + id +".player2.pitch");
+					player2 = new Location(Bukkit.getWorld(main.aren.getString("sumo.all." + id +".world")), main.aren.getInt("sumo.all." + id +".player2.x"), main.aren.getInt("sumo.all." + id +".player2.y"), main.aren.getInt("sumo.all." + id +".player2.z"), ft1, ft2);
 
-		public Arene(String name, Location player1, Location player2) {
-					this.name = name;
-					this.player1 = player1;
-					this.player2 = player2;
+					y = main.aren.getInt("sumo.all." + id +".y");
+					this.id = id;
 		}
 		
 		public String getName() {
@@ -94,103 +87,141 @@ public AreneManager (Base main) {
 		public Location getSecond() {
 			return player2;
 		}
+		public int getY() {
+			return y;
+		}
+		public String getId() {
+			return id;
+		}
 		
-		
-		
-	}	
-	public void AddArene(String id) {
-		float ft1 = 0;
-		float ft2 = 0;
-		ft1 =  main.aren.getInt("arene.all." + id +".player1.yaw");
-		ft2 = main.aren.getInt("arene.all." + id +".player1.pitch");
-		Location player1 = new Location(Bukkit.getWorld(main.aren.getString("arene.all." + id +".world")), main.aren.getInt("arene.all." + id +".player1.x"), main.aren.getInt("arene.all." + id +".player1.y"), main.aren.getInt("arene.all." + id +".player1.z"), ft1, ft2);
-		ft1 =  main.aren.getInt("arene.all." + id +".player2.yaw");
-		ft2 = main.aren.getInt("arene.all." + id +".player2.pitch");
-		Location player2 = new Location(Bukkit.getWorld(main.aren.getString("arene.all." + id +".world")), main.aren.getInt("arene.all." + id +".player2.x"), main.aren.getInt("arene.all." + id +".player2.y"), main.aren.getInt("arene.all." + id +".player2.z"), ft1, ft2);
-		Arene arene = new Arene(main.aren.getString("arene.all." + id +".name"), player1, player2);
-		main.arensansjeu.add(arene);
-		
-		return;
 	}
 	
-	
-	
-	public void onGet(String kit, Player player) {
+	public class Parcour{
 		
-		
-		
-	FileConfiguration kite  = YamlConfiguration.loadConfiguration(main.getFile("kit"));
+		private String name = null;
+		private Location player1 = null;
+		private Location player2 = null;
+		private int y = 0;
+		private String id = null;
+		private int xmax = 0;
+		private int xmin = 0;
+		private int zmax = 0;
+		private int zmin = 0;
 
-	List<Player> kt = main.kit.get(kit);
+
+		public Parcour(String id) {
+			float ft1 = 0;
+			float ft2 = 0;
+					name = main.aren.getString("parcour.all." + id +".name");
+					ft1 =  main.aren.getInt("parcour.all." + id +".player1.yaw");
+					ft2 = main.aren.getInt("parcour.all." + id +".player1.pitch");
+					player1 = new Location(Bukkit.getWorld(main.aren.getString("parcour.all." + id +".world")), main.aren.getInt("parcour.all." + id +".player1.x"), main.aren.getInt("parcour.all." + id +".player1.y"), main.aren.getInt("parcour.all." + id +".player1.z"), ft1, ft2);
+					ft1 =  main.aren.getInt("parcour.all." + id +".player2.yaw");
+					ft2 = main.aren.getInt("parcour.all." + id +".player2.pitch");
+					player2 = new Location(Bukkit.getWorld(main.aren.getString("parcour.all." + id +".world")), main.aren.getInt("parcour.all." + id +".player2.x"), main.aren.getInt("parcour.all." + id +".player2.y"), main.aren.getInt("parcour.all." + id +".player2.z"), ft1, ft2);
+
+					y = main.aren.getInt("parcour.all." + id +".end.y");
+					this.id = id;
+
+					if(main.aren.getInt("parcour.all." + id +".end.point1.x") >= main.aren.getInt("parcour.all." + id +".end.point2.x")) {
+						xmax = main.aren.getInt("parcour.all." + id +".end.point1.x");
+						xmin = main.aren.getInt("parcour.all." + id +".end.point2.x");
+					}else {
+						xmax = main.aren.getInt("parcour.all." + id +".end.point2.x");
+						xmin = main.aren.getInt("parcour.all." + id +".end.point1.x");
+					}
+					if(main.aren.getInt("parcour.all." + id +".end.point1.z") >= main.aren.getInt("parcour.all." + id +".end.point2.z")) {
+						zmax = main.aren.getInt("parcour.all." + id +".end.point1.z");
+						zmin = main.aren.getInt("parcour.all." + id +".end.point2.z");
+					}else {
+						zmax = main.aren.getInt("parcour.all." + id +".end.point2.z");
+						zmin = main.aren.getInt("parcour.all." + id +".end.point1.z");
+					}
+		
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		public Location getFirst() {
+			return player1;
+		}
+		public Location getSecond() {
+			return player2;
+		}
+		public int getY() {
+			return y;
+		}
+		public String getId() {
+			return id;
+		}
+		
+		public Boolean onGood(Location loc) {
+			Boolean bl = false;
+			if((loc.getX() <= xmax) && (loc.getX() >= xmin) && (loc.getZ() >= zmin) && (loc.getZ() <= zmax) && (loc.getY() >= y)) {
+				bl = true;
+			}
+			return bl;
+		}
+		
+	}
+	private int y = 0;
+
+	private int xmax = 0;
+	private int xmin = 0;
+	private int zmax = 0;
+	private int zmin = 0;
 	
-	if(kt.contains(player)) {
-		kt.remove(player);
-		main.play.remove(player);
-		player.sendMessage("§6§lVous avez quitté la liste d'attente du " + kite.getString("kit." + kit + ".name"));
-		return;
+	public Boolean onGood(Location loc, String id) {
+		
+		
+		y = main.aren.getInt("parcour.all." + id +".end.y");
+
+		if(main.aren.getInt("parcour.all." + id +".end.point1.x") >= main.aren.getInt("parcour.all." + id +".end.point2.x")) {
+			xmax = main.aren.getInt("parcour.all." + id +".end.point1.x");
+			xmin = main.aren.getInt("parcour.all." + id +".end.point2.x");
+		}else {
+			xmax = main.aren.getInt("parcour.all." + id +".end.point2.x");
+			xmin = main.aren.getInt("parcour.all." + id +".end.point1.x");
+		}
+		if(main.aren.getInt("parcour.all." + id +".end.point1.z") >= main.aren.getInt("parcour.all." + id +".end.point2.z")) {
+			zmax = main.aren.getInt("parcour.all." + id +".end.point1.z");
+			zmin = main.aren.getInt("parcour.all." + id +".end.point2.z");
+		}else {
+			zmax = main.aren.getInt("parcour.all." + id +".end.point2.z");
+			zmin = main.aren.getInt("parcour.all." + id +".end.point1.z");
+		}
+		
+		Boolean bl = false;
+		if((loc.getX() <= xmax) && (loc.getX() >= xmin) && (loc.getZ() >= zmin) && (loc.getZ() <= zmax) && (loc.getY() >= y)) {
+			bl = true;
+		}
+		return bl;
+
+
 	}
 	
-	
-	
-	
-	if(kt.size() == 0) {
-		kt.add(player);
-		if(main.play.containsKey(player)) {
-			String ki = main.play.get(player);
-			List<Player> li = main.kit.get(ki);
-			li.remove(player);
-			main.play.remove(player);
-		}
-		main.play.put(player, kit);
-		player.sendMessage("§6§lVous avez été ajouté à la liste d'attente du " + kite.getString("kit." + kit + ".name"));
-		ItemStack it = new ItemStack(Material.REDSTONE, 1);
-		ItemMeta im = it.getItemMeta();
-		im.setDisplayName("§c§lQuitter la fil d'attente");
-		im.addEnchant(Enchantment.DURABILITY, 1, true);
-		it.setItemMeta(im);
-		player.getInventory().clear();
-		player.getInventory().setItem(8, it);
+	public void CreatSumo(String id) {
+		Sumo arene = new Sumo(id);
+		main.sumosansjeu.add(arene);
 		return;
 	}
+
 	
-	
-	
-	
-	
-	else {
+
+	public void onSumo(String kit, Player player, Player pl) {
+						
 		
-		List<Player> li = main.kitingame.get(kit);
-		Player pl = null;
-		for(Player play : kt) {
-			pl = play;
-		}
 		
-		main.online.add(player);
-		main.online.add(pl);
-		
-		main.play.remove(pl);
-		kt.remove(pl);
-		
-		li.add(pl);
-		li.add(player);
-		
-		if(kite.getBoolean("kit." + kit + ".prop.sumo")) {
-			pro.onSumo(kit, player, pl);
-			return;
-		}
-		
-		if(kite.getBoolean("kit." + kit + ".prop.parcour")) {
-			pro.onParcour(kit, player, pl);
-			return;
-		}
 		/**
 		 * pl c'est égale a l'autre joueur
 		 */
 		
 		
-		
-		
 
+		
+		
 		
 		if(pl.getName().equalsIgnoreCase(player.getName())) {
 			player.sendMessage("§c§lErreur interne! Rééssayer");
@@ -204,20 +235,16 @@ public AreneManager (Base main) {
 		
 		
 		
-		List<Arene> ar = main.arensansjeu;
-		Arene are = null;
+		List<Sumo> ar = main.sumosansjeu;
+		Sumo are = null;
 		int rf = 0;
-		int nj = (int) Math.round( 1 + (Math.random() * (main.arensansjeu.size() - 1 )));
-		player.sendMessage("§6§l" + nj);
-		pl.sendMessage("§6§l" + nj);
-		for(Arene arene : ar) {
-			rf++;
-			player.sendMessage("§aLe nombre est "  + rf);
-			pl.sendMessage("§aLe nombre est "  + rf);
+		int nj = (int) Math.round(Math.random() * ( main.sumosansjeu.size() - 1 ));
+		for(Sumo arene : ar) {
 			if(rf == nj) {
 				are = arene;
 				break;
 			}
+			rf++;
 		}
 		
 		
@@ -226,11 +253,14 @@ public AreneManager (Base main) {
 			player.sendMessage("§c§lErreur : Pas assez d'arènes impossible d'en trouver veuillez rééssayer !");
 			pl.sendMessage("§c§lErreur : Pas assez d'arènes impossible d'en trouver veuillez rééssayer !");
 			
-			main.online.remove(player);
-			main.online.remove(pl);
-			
-			li.remove(player);
-			li.remove(pl);
+			if(main.ranonline.contains(player)) {
+				main.ranonline.remove(player);
+				main.ranonline.remove(pl);
+			}else {
+				main.online.remove(player);
+				main.online.remove(pl);
+
+			}
 			
 			ItemStack unranked = new ItemStack(Material.IRON_SWORD);
 			ItemMeta un = unranked.getItemMeta();
@@ -244,7 +274,6 @@ public AreneManager (Base main) {
 	        ran.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 			ranked.setItemMeta(ran);
 			
-			pl.getInventory().clear();
 			pl.getInventory().setItem(0, unranked);
 			pl.getInventory().setItem(1, ranked);
 			pl.getInventory().setItem(4, main.ed.Item());
@@ -259,13 +288,18 @@ public AreneManager (Base main) {
 		
 		
 		ar.remove(are);
-		main.arenenjeu.add(are);
-		
-		
+		main.sumoenjeu.add(are);
+		main.sumoar.put(player, are.getId());
+		main.sumoar.put(pl, are.getId());
+
 		/**
 		 * On s'occupe de l'arene
 		 */
 		
+
+		
+		main.sumoget.put(player,""+ are.getY());
+		main.sumoget.put(pl,""+ are.getY());
 		
 		
 		pl.sendMessage("§6§lLa partie va commencer");
@@ -288,8 +322,10 @@ public AreneManager (Base main) {
 		main.game.put(pl, player);
 		main.game.put(player, pl);
 		
-		main.end.put(pl, are);
+		main.sumoend.put(pl, are);
 
+		main.sumoonline.add(player);
+		main.sumoonline.add(pl);
 		
 		main.att.add(player);
 		main.att.add(pl);
@@ -301,6 +337,7 @@ public AreneManager (Base main) {
 		int nombre = 1;
 		ItemStack it = null;
 		FileConfiguration internDB  = YamlConfiguration.loadConfiguration(main.getFile("internDB"));
+		FileConfiguration kite  = YamlConfiguration.loadConfiguration(main.getFile("kit"));
 
 		if(internDB.getBoolean(player.getUniqueId() + "." + kit + ".act")) {
 			while(nb != 36) {
@@ -310,12 +347,16 @@ public AreneManager (Base main) {
 				nb++;
 				nombre++;
 			}
+			YamlConfiguration.loadConfiguration(main.getFile("internDB"));
 			it = internDB.getItemStack(player.getUniqueId() + "." + kit + ".inventory.helmet");
 			player.getInventory().setHelmet(it);
+			YamlConfiguration.loadConfiguration(main.getFile("internDB"));
 			it = internDB.getItemStack(player.getUniqueId() + "." + kit + ".inventory.chestplate");
 			player.getInventory().setChestplate(it);
+			YamlConfiguration.loadConfiguration(main.getFile("internDB"));
 			it = internDB.getItemStack(player.getUniqueId() + "." + kit + ".inventory.leggings");
 			player.getInventory().setLeggings(it);
+			YamlConfiguration.loadConfiguration(main.getFile("internDB"));
 			it = internDB.getItemStack(player.getUniqueId() + "." + kit + ".inventory.boots");
 			player.getInventory().setBoots(it);
 
@@ -399,128 +440,68 @@ public AreneManager (Base main) {
 		main.timerstart.add(nt);
 		main.timerst.put(nt, player);
 
-	}
-	
-	return;
-}
-
-public void onRanGet(String kit, Player player) {
-	
-	List<Player> kt = main.rankit.get(kit);
-	FileConfiguration kite  = YamlConfiguration.loadConfiguration(main.getFile("kit"));
-	
-	if(kt.contains(player)) {
-		kt.remove(player);
-		main.play.remove(player);
-		player.sendMessage("§6§lVous avez quitté la liste d'attente du kit ranked " + kite.getString("kit." + kit + ".name"));
 		return;
 	}
 	
-	if(kt.size() == 0) {
-		
-		
-		kt.add(player);
-		
-		
-		if(main.ranplay.containsKey(player)) {
-			String ki = main.ranplay.get(player);
-			List<Player> li = main.rankit.get(ki);
-			li.remove(player);
-			main.ranplay.remove(player);
-		}
-		
-		
-		else if(main.play.containsKey(player)) {
-			String ki = main.play.get(player);
-			List<Player> li = main.kit.get(ki);
-			li.remove(player);
-			main.play.remove(player);
-		}
-		
-		
-		main.ranplay.put(player, kit);
-		player.sendMessage("§6§lVous avez été ajouté à la liste d'attente du kit ranked " + kite.getString("kit." + kit + ".name"));
-		
-		ItemStack it = new ItemStack(Material.REDSTONE, 1);
-		ItemMeta im = it.getItemMeta();
-		im.setDisplayName("§c§lQuitter la fil d'attente");
-		im.addEnchant(Enchantment.DURABILITY, 1, true);
-		it.setItemMeta(im);
-		player.getInventory().clear();
-		player.getInventory().setItem(8, it);
+	public void CreatParcour(String id) {
+		Parcour arene = new Parcour(id);
+		main.parcoursansjeu.add(arene);
 		return;
-	}else {
-		
-		// Lorsque qu'il y a une autre personne dans la fil d'attente
-		
+	}
 
-		List<Player> li = main.rankitingame.get(kit);
+	
 
+	public void onParcour(String kit, Player player, Player pl) {
+						
 		
-		Player pl = null;
-		for(Player play : kt) {
-			pl = play;
-			break;
-		}
-		
-		main.ranonline.add(player);
-		main.ranonline.add(pl);
-		
-		main.play.remove(pl);
-		kt.remove(pl);
-		
-		li.add(pl);
-		li.add(player);
-		
-		if(kite.getBoolean("kit." + kit + ".prop.sumo")) {
-			pro.onSumo(kit, player, pl);
-			return;
-		}
-		if(kite.getBoolean("kit." + kit + ".prop.parcour")) {
-			pro.onParcour(kit, player, pl);
-			return;
-		}
 		
 		/**
 		 * pl c'est égale a l'autre joueur
 		 */
-				
-		if(pl.getName().equalsIgnoreCase(player.getName())) {
-			player.sendMessage("§c§lErreur interne veuillez retenter !");
-			return;
-		}
+		
+		
 
 		
+		
+		
+		if(pl.getName().equalsIgnoreCase(player.getName())) {
+			player.sendMessage("§c§lErreur interne! Rééssayer");
+			return;
+		}
+		
+		
 		/**
-		 * Le joueur a été enlevé des liste
+		 * On enleve le joueur a ses classes
 		 */
 		
-		List<Arene> ar = main.arensansjeu;
-		Arene are = null;
+		
+		
+		List<Parcour> ar = main.parcoursansjeu;
+		Parcour are = null;
 		int rf = 0;
-		int nj = (int) Math.round( 1 + (Math.random() * (main.arensansjeu.size() - 1 )));
-		for(Arene arene : ar) {
-			rf++;
+		int nj = (int) Math.round(Math.random() * ( main.parcoursansjeu.size() - 1 ));
+		for(Parcour arene : ar) {
 			if(rf == nj) {
 				are = arene;
 				break;
 			}
+			rf++;
 		}
 		
-		/**
-		 * On choisie une arene
-		 */
+		
 		
 		if(are == null) {
 			player.sendMessage("§c§lErreur : Pas assez d'arènes impossible d'en trouver veuillez rééssayer !");
 			pl.sendMessage("§c§lErreur : Pas assez d'arènes impossible d'en trouver veuillez rééssayer !");
 			
-			main.ranonline.remove(player);
-			main.ranonline.remove(pl);
-			
-			li.remove(player);
-			li.remove(pl);
+			if(main.ranonline.contains(player)) {
+				main.ranonline.remove(player);
+				main.ranonline.remove(pl);
+			}else {
+				main.online.remove(player);
+				main.online.remove(pl);
 
+			}
 			
 			ItemStack unranked = new ItemStack(Material.IRON_SWORD);
 			ItemMeta un = unranked.getItemMeta();
@@ -534,72 +515,68 @@ public void onRanGet(String kit, Player player) {
 	        ran.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 			ranked.setItemMeta(ran);
 			
-			pl.getInventory().clear();
 			pl.getInventory().setItem(0, unranked);
 			pl.getInventory().setItem(1, ranked);
 			pl.getInventory().setItem(4, main.ed.Item());
-			
 			return;
 		}
 		
+		
+		
 		/**
-		 * Si l'arène est nul on annule tout
+		 * On séléctionne une arene
 		 */
+		
 		
 		ar.remove(are);
+		main.parcourenjeu.add(are);
+		main.parcourar.put(player, are.getId());
+		main.parcourar.put(pl, are.getId());
 
 		/**
-		 * arene est supprimer de la liste des arene sans jeu
+		 * On s'occupe de l'arene
 		 */
-		
-		main.arenenjeu.add(are);
-		
-		
-		
-		
-		main.att.add(player);
-		main.att.add(pl);
-		main.end.put(pl, are);
-		
-		main.game.put(pl, player);
-		main.game.put(player, pl);
-		
-		/**
-		 * main.ranonline c'est pour que le joueur a le status de en ligne
-		 * main.att c'est pour que le joueur ne puisse rien faire avant que la partie commence
-		 * main.end c'est la map pour retrouver l'arene grace a un joueur
-		 * main.game c'est la map qui dit quelle joueur est contre lequelle
-		 */
-		
-		
-		List<Block> lis = new ArrayList<>();
-		main.bc.put(pl, lis);
-		
-			player.setHealth(20);
-		pl.setHealth(20);
-		
-		pl.teleport(are.getFirst());
-		player.teleport(are.getSecond());
 		
 
+		
+		main.parcourget.put(player,""+ are.getY());
+		main.parcourget.put(pl,""+ are.getY());
 		
 		
 		pl.sendMessage("§6§lLa partie va commencer");
 		player.sendMessage("§6§lLa partie va commencer");
 
+		
+		
+		
+		
+		List<Block> lis = new ArrayList<>();
 
+		main.bc.put(pl, lis);
+		
+		player.setHealth(20);
+		pl.setHealth(20);
+		
+		pl.teleport(are.getFirst());
+		player.teleport(are.getSecond());
+		
+		main.game.put(pl, player);
+		main.game.put(player, pl);
+		
+		main.parcourend.put(pl, are);
+
+		main.parcouronline.add(player);
+		main.parcouronline.add(pl);
+		
 
 		player.getInventory().clear();
 		pl.getInventory().clear();
-		
-		/**
-		 * Clear le joueur
-		 */
 		
 		int nb = 0;
 		int nombre = 1;
 		ItemStack it = null;
 		FileConfiguration internDB  = YamlConfiguration.loadConfiguration(main.getFile("internDB"));
+		FileConfiguration kite  = YamlConfiguration.loadConfiguration(main.getFile("kit"));
 
 		if(internDB.getBoolean(player.getUniqueId() + "." + kit + ".act")) {
 			while(nb != 36) {
@@ -693,27 +670,16 @@ public void onRanGet(String kit, Player player) {
 			pl.getInventory().setBoots(it);
 
 		}
-
+		
 		
 		main.getInstance().title.sendActionBar(player, "§6Arene : " + are.getName());
-		main.getInstance().title.sendActionBar(pl, "§6Arene : " + are.getName());		
-		/**
-		 * Give des items
-		 */
+		main.getInstance().title.sendActionBar(pl, "§6Arene : " + are.getName());
 		
-		NumberTimer nt = new NumberTimer(main, 4);
-		main.timerstart.add(nt);
-		main.timerst.put(nt, player);
+		main.getInstance().title.sendTitle(player, 10, 20, 10, "§6Go");
+		main.getInstance().title.sendTitle(pl, 10, 20, 10, "§6Go");
 
-		/**
-		 * Start du timer
-		 */
-		
+
+		return;
 	}
 	
-	return;
-}
-
-
-
 }
