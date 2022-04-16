@@ -1162,7 +1162,7 @@ public class InventoryManager {
 	}
 	
 	public Inventory setProperties(Player player, String id) {
-		Inventory inv = Bukkit.createInventory(player, 45, "§6§lOption " + id);
+		Inventory inv = Bukkit.createInventory(player, 45, "§6§lOptions avancées " + id);
 
 		FileConfiguration kite  = YamlConfiguration.loadConfiguration(main.getFile("kit"));
 		

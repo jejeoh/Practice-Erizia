@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -22,8 +24,7 @@ public class DBConnect {
     
 	private Base main;
 	
-	
-
+	public Map<String, String> getelo = new HashMap<>();
 
 
     public static Connection connection;
@@ -35,43 +36,22 @@ public class DBConnect {
         this.database = database;
         this.username = username;
         this.password = password;
-
-
-    }
+        }
  public static Connection getConnection() {
         return connection;
 
     }
  public void createAccount(Player p) {
 	 
-	 int elo = 700;
 
         if (!hasAccont(p)) {
     		main.getInstance().title.sendTitle(p, 10, 60, 10, "§6Bienvenue");
-            try {
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (uuid, player_name, elo) VALUES (?,?,?)");
+            try  {
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (uuid, player_name) VALUES (?,?)");
                 preparedStatement.setString(1, p.getUniqueId().toString());
                 preparedStatement.setString(2, p.getName().toString());
-                preparedStatement.setInt(3, elo);
                 preparedStatement.execute();
                 preparedStatement.close();
-                
-                
-                PreparedStatement ps = connection.prepareStatement("SELECT id FROM users WHERE uuid=?");
-                ps.setString(1, p.getUniqueId().toString());
-                ResultSet rs = ps.executeQuery();
-
-                int id = 0;
-                
-                while (rs.next()) {
-                    id = rs.getInt("id");
-                }
-                
-                PreparedStatement addacount = connection.prepareStatement("INSERT INTO stat (id) VALUES (?)");
-                addacount.setInt(1, id);
-                addacount.execute();
-                addacount.close();
-
 
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -89,6 +69,7 @@ public class DBConnect {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT uuid FROM users WHERE uuid = ?");
             preparedStatement.setString(1, p.getUniqueId().toString());
             ResultSet rs = preparedStatement.executeQuery();
+            preparedStatement.close();
 
             while (rs.next()) {
                 return true;
@@ -136,42 +117,52 @@ public class DBConnect {
     public int getElo(String player , String kit) {
         PreparedStatement preparedStatement;
         ResultSet rs = null;
-		int in = 0;
-		
-		if(kit.equalsIgnoreCase("0")) {
+		int in = 180;
+		if(getelo.get(player + "_" + kit) == null) {
 			try {
-				preparedStatement = connection.prepareStatement("SELECT elo FROM users WHERE player_name = ?");
-		        preparedStatement.setString(1, player);
+				preparedStatement = connection.prepareStatement("SELECT elo FROM stat WHERE player_name ='" + player +"' AND kit_id=" + kit);
 		        rs = preparedStatement.executeQuery();
+                preparedStatement.close();
 		        while(rs.next()) {
-		        	in = rs.getInt("elo");
+		        	if(rs.getInt("elo") == 0) break;
+			        getelo.put(player + "_" + kit, rs.getInt("elo") + "");
+		        	return rs.getInt("elo");
 		        }
+
+		
+		        
+		        
 			} catch (SQLException e) {
-				e.printStackTrace();
+
 			}
-	    	return in;
+			
+	        try {
+		        preparedStatement = connection.prepareStatement("INSERT INTO stat (`player_name`, `kit_id`, `elo`) VALUES ('" + player +"', '" + kit +"', '700')");
+				preparedStatement.execute();
+		        preparedStatement.close();
+		        getelo.put(player + "_" + kit,"700");
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 
+			
 		}
-		try {
-			preparedStatement = connection.prepareStatement("SELECT elo_" + kit + " FROM users WHERE player_name = ?");
-	        preparedStatement.setString(1, player);
-	        rs = preparedStatement.executeQuery();
-	        while(rs.next()) {
-	        	in = rs.getInt("elo_" + kit);
-	        }
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		in = Integer.parseInt(getelo.get(player + "_" + kit));
 
-    	return in;
+		return in;
     }
     public void addElo(String player, String kit, int elo) {
     	int nb = getElo(player, kit)+elo;
         PreparedStatement preparedStatement;
-		try {
-			preparedStatement = connection.prepareStatement("UPDATE users SET elo_" + kit + "=" + nb +" WHERE player_name = ?");
+		try  {
+			preparedStatement = connection.prepareStatement("UPDATE stat SET elo=" + nb +" WHERE player_name = ? AND kit_id= ?");
 	        preparedStatement.setString(1, player);
+	        preparedStatement.setString(2, kit);
 	        preparedStatement.execute();
+            preparedStatement.close();
+
+	        getelo.remove(player + "_" + kit);
+	        getelo.put(player + "_" + kit,  nb+ "");
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -182,9 +173,13 @@ public class DBConnect {
     	int nb = getElo(player, kit)-elo;
         PreparedStatement preparedStatement;
 		try {
-			preparedStatement = connection.prepareStatement("UPDATE users SET elo_" + kit + "=" + nb +" WHERE player_name = ?");
+			preparedStatement = connection.prepareStatement("UPDATE stat SET elo=" + nb +" WHERE player_name = ? AND kit_id= ?");
 	        preparedStatement.setString(1, player);
+	        preparedStatement.setString(2, kit);
 	        preparedStatement.execute();
+	        getelo.remove(player + "_" + kit);
+	        getelo.put(player + "_" + kit,  nb+ "");
+            preparedStatement.close();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -194,9 +189,13 @@ public class DBConnect {
     public void setElo(String player, String kit, int elo) {
         PreparedStatement preparedStatement;
 		try {
-			preparedStatement = connection.prepareStatement("UPDATE users SET elo_" + kit + "=" + elo +" WHERE player_name = ?");
+			preparedStatement = connection.prepareStatement("UPDATE stat SET elo=" + elo +" WHERE player_name = ? AND kit_id= ?");
 	        preparedStatement.setString(1, player);
+	        preparedStatement.setString(2, kit);
 	        preparedStatement.execute();
+	        getelo.remove(player + "_" + kit);
+	        getelo.put(player + "_" + kit,  elo+ "");
+            preparedStatement.close();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -217,13 +216,24 @@ public class DBConnect {
 		elo = Math.round(elo / main.rankit.size());
         PreparedStatement preparedStatement;
 		try {
-			preparedStatement = connection.prepareStatement("UPDATE users SET elo="+ elo +" WHERE player_name = ?");
+			preparedStatement = connection.prepareStatement("UPDATE stat SET elo="+ elo +" WHERE player_name = ? AND kit_id=0");
 	        preparedStatement.setString(1, player);
 	        preparedStatement.execute();
+	        preparedStatement.close();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			try {
+		        preparedStatement = connection.prepareStatement("INSERT INTO stat (`player_name`, `kit_id`, `elo`) VALUES ('" + player +"', '0', ' "+ elo +"')");
+		        preparedStatement.execute();
+		        preparedStatement.close();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+
 		}
+        getelo.remove(player + "_0");
+        getelo.put(player + "_0",  elo+ "");
+
     }
     
     public void Kitadd(String id, Boolean rank, String name) {
@@ -294,6 +304,7 @@ public class DBConnect {
 			PreparedStatement prs = connection.prepareStatement("SELECT id FROM users WHERE uuid = ?");
 			prs.setString(1, player.getUniqueId().toString());
 			ResultSet rs = prs.executeQuery();
+			prs.close();
 	        while(rs.next()) {
 	        	 in = rs.getInt("id");
 	        }
@@ -306,6 +317,7 @@ public class DBConnect {
 			PreparedStatement ps = connection.prepareStatement("SELECT un_"+ id +"  FROM stat WHERE id = ?");
 			ps.setInt(1, in);
 	        ResultSet rs = ps.executeQuery();
+			ps.close();
 	        while(rs.next()) {
 	        	st = rs.getInt("un_" + id);
 	        }

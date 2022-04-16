@@ -804,8 +804,8 @@ public class EventGame implements Listener {
 					main.ed.onChange(player, "" + nomb);
 
 
-				}if(iv.getName().contains("§6§lOption ")) {
-					String id = iv.getName().replace("§6§lOption " , "");
+				}if(iv.getName().contains("§6§lOptions avancées ")) {
+					String id = iv.getName().replace("§6§lOptions avancées " , "");
 					e.setCancelled(true);
 					if(nb == 20) {
 						if(kit.getBoolean("kit." + id + ".prop.sumo"))return;
